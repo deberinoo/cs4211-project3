@@ -1,0 +1,25 @@
+// Auto-generated PAT CSP skeleton for cars
+// Style: generic event-scheduler loop (control-flow template)
+
+System() =
+(
+    ML_out1 -> System()
+ [] ML_out2 -> System()
+ [] IL_out1 -> System()
+ [] IL_out2 -> System()
+ [] ML_tl_green -> System()
+ [] IL_tl_green -> System()
+ [] ML_in -> System()
+ [] IL_in -> System()
+ [] ML_OUT_ARR -> System()
+ [] ML_IN_ARR -> System()
+ [] IL_IN_ARR -> System()
+ [] IL_OUT_ARR -> System()
+ [] ML_OUT_DEP -> System()
+ [] ML_IN_DEP -> System()
+ [] IL_IN_DEP -> System()
+ [] IL_OUT_DEP -> System()
+);
+
+#assert System() deadlockfree;
+

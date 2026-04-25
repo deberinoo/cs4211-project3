@@ -1,0 +1,78 @@
+﻿// --- 1. GLOBAL DEFINITIONS ---
+#define d 2; 
+enum {green, red};
+enum {on, off};
+
+var a = 0; var b = 0; var c = 0;
+var ml_tl = red;
+var il_tl = red;
+var ml_pass = 1;
+var il_pass = 1;
+
+var A = 0; var B = 0; var C = 0;
+
+var ML_OUT_SR = off;
+var ML_IN_SR = off;
+var IL_OUT_SR = off;
+var IL_IN_SR = off;
+
+var ml_out_10 = false;
+var il_out_10 = false;
+var ml_in_10 = false;
+var il_in_10 = false;
+
+// --- 2. PROCESS DEFINITIONS ---
+System = ML_OUT_ARR [] ML_OUT_DEP [] ML_out_Logic []
+         ML_IN_ARR  [] ML_IN_DEP  [] ML_in_Logic  []
+         IL_IN_ARR  [] IL_IN_DEP  [] IL_in_Logic  []
+         IL_OUT_ARR [] IL_OUT_DEP [] IL_out_Logic []
+         ML_tl_green [] IL_tl_green;
+
+ML_OUT_ARR = [ML_OUT_SR == off && ml_out_10 == false] ml_out_arr{ML_OUT_SR = on} -> System;
+ML_OUT_DEP = [ML_OUT_SR == on && ml_tl == green] ml_out_dep{ML_OUT_SR = off; ml_out_10 = true; A = A + 1} -> System;
+ML_out_Logic = [ml_out_10 == true] update_ml_out -> (
+               if (a + b + 1 < d) {
+                   {a = a + 1; ml_pass = 1; ml_out_10 = false} -> System
+               } else {
+                   {a = a + 1; ml_tl = red; ml_pass = 1; ml_out_10 = false} -> System
+               }
+             );
+
+IL_IN_ARR = [IL_IN_SR == off && il_in_10 == false && A > 0] il_in_arr{IL_IN_SR = on} -> System;
+IL_IN_DEP = [IL_IN_SR == on] il_in_dep{IL_IN_SR = off; il_in_10 = true; A = A - 1; B = B + 1} -> System;
+IL_in_Logic = [il_in_10 == true && a > 0] update_il_in{a = a - 1; b = b + 1; il_in_10 = false} -> System;
+IL_OUT_ARR = [IL_OUT_SR == off && il_out_10 == false && B > 0] il_out_arr{IL_OUT_SR = on} -> System;
+IL_OUT_DEP = [IL_OUT_SR == on && il_tl == green] il_out_dep{IL_OUT_SR = off; il_out_10 = true; B = B - 1; C = C + 1} -> System;
+IL_out_Logic = [il_out_10 == true] update_il_out -> (
+               if (b > 1) {
+                   {b = b - 1; c = c + 1; il_pass = 1; il_out_10 = false} -> System
+               } else {
+                   {b = b - 1; il_tl = red; c = c + 1; il_pass = 1; il_out_10 = false} -> System
+               }
+             );
+
+ML_IN_ARR = [ML_IN_SR == off && ml_in_10 == false && C > 0] ml_in_arr{ML_IN_SR = on} -> System;
+ML_IN_DEP = [ML_IN_SR == on] ml_in_dep{ML_IN_SR = off; ml_in_10 = true; C = C - 1} -> System;
+ML_in_Logic = [ml_in_10 == true && c > 0] update_ml_in{c = c - 1; ml_in_10 = false} -> System;
+ML_tl_green = [ml_tl == red && a + b < d && c == 0 && il_pass == 1 && il_out_10 == false] 
+              set_ml_green{ml_tl = green; il_tl = red; ml_pass = 0} -> System;
+IL_tl_green = [il_tl == red && b > 0 && a == 0 && ml_pass == 1 && ml_out_10 == false] 
+              set_il_green{il_tl = green; ml_tl = red; il_pass = 0} -> System;
+
+// --- 3. ASSERTIONS ---
+#define goal (c > 0);
+#define multi_goal (c > 1);
+#define safety (A == 0 || C == 0);
+#define CapacityLimit (A + B + C <= d);
+#define ml_is_green (ml_tl == green);
+#define SignalSafetyML (!(ml_out_10 == true) || ml_tl == green);
+#define SignalSafetyIL (!(il_out_10 == true) || il_tl == green);
+
+#assert System deadlockfree;
+#assert System reaches goal;
+#assert System reaches multi_goal;
+#assert System |= [] safety;
+#assert System |= [] CapacityLimit;
+#assert System |= [] ml_is_green;
+#assert System |= [] SignalSafetyML;
+#assert System |= [] SignalSafetyIL;

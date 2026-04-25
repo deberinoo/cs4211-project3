@@ -1,0 +1,53 @@
+﻿// 90_DOORS (abstract CSP model)
+// States are processes; events are transitions.
+
+DOORS() = Idle();
+
+Idle() =
+    CARD -> CardPending();
+
+CardPending() =
+    // abstracts the guard checking: either accept or refuse
+    accept -> Accepted()
+  [] refuse -> Refused();
+
+Accepted() =
+    ACCEPT -> GreenOn();
+
+GreenOn() =
+    // either allow pass, or turn green off
+    PASS -> pass -> Ack()
+  [] OFF_GRN -> off_grn -> Ack();
+
+Refused() =
+    REFUSE -> RedOn();
+
+RedOn() =
+    OFF_RED -> off_red -> Ack();
+
+Ack() =
+    ACKN -> Idle();
+
+// Run the controller as the system
+System() = DOORS();
+// Force refusal scenario
+SystemRefuse() =
+  CARD -> refuse -> REFUSE -> OFF_RED -> off_red -> ACKN -> Skip;
+
+// Force accept + green-off scenario
+SystemGreenOff() =
+  CARD -> accept -> ACCEPT -> OFF_GRN -> off_grn -> ACKN -> Skip;
+
+// Force accept + pass scenario
+SystemPass() =
+  CARD -> accept -> ACCEPT -> PASS -> pass -> ACKN -> Skip;
+
+#assert SystemRefuse() deadlockfree;
+#assert SystemGreenOff() deadlockfree;
+#assert SystemPass() deadlockfree;
+
+// Basic verification
+#assert System() deadlockfree;
+#assert System() |= <> pass;
+#assert System() |= <> off_grn;
+#assert System() |= <> off_red;

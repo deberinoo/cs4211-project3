@@ -1,0 +1,21 @@
+// Auto-generated PAT CSP skeleton for doors_4
+// Style: generic event-scheduler loop (control-flow template)
+
+System() =
+(
+    pass -> System()
+ [] accept -> System()
+ [] refuse -> System()
+ [] off_grn -> System()
+ [] off_red -> System()
+ [] CARD -> System()
+ [] ACKN -> System()
+ [] ACCEPT -> System()
+ [] REFUSE -> System()
+ [] PASS -> System()
+ [] OFF_GRN -> System()
+ [] OFF_RED -> System()
+);
+
+#assert System() deadlockfree;
+

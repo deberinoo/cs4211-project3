@@ -1,0 +1,9 @@
+// Auto-generated check templates
+#assert System() deadlockfree;
+#assert System() |= <> pass;
+#assert System() |= <> accept;
+#assert System() |= <> refuse;
+
+// Note: <> event means 'eventually on all executions', not mere reachability.
+
+

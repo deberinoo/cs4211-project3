@@ -1,0 +1,9 @@
+// Auto-generated check templates
+#assert System() deadlockfree;
+#assert System() |= <> ML_out1;
+#assert System() |= <> ML_out2;
+#assert System() |= <> IL_out1;
+
+// Note: <> event means 'eventually on all executions', not mere reachability.
+
+
